@@ -89,7 +89,13 @@ pipeline
                   
                 }
 		
-                sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'ansible-playbook sample.yml -i myinv -l DEV -u vagrant ', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'sample.yml, myinv')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                ansiblePlaybook(
+                    playbook: 'sample.yml',
+                    inventory: 'myinv',
+					limit: 'DEV',
+					disableHostKeyChecking: true,
+					credentialsId: 'ansiblekey',
+					colorized: true)
             
             }
         }
@@ -120,7 +126,14 @@ pipeline
                   
                 }
          
-                sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'ansible-playbook sample.yml -i myinv -l QA -u vagrant ', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'sample.yml, myinv')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                ansiblePlaybook(
+                    playbook: 'sample.yml',
+                    inventory: 'myinv',
+					limit: 'QA',
+					disableHostKeyChecking: true,
+					credentialsId: 'ansiblekey',
+					colorized: true)
+     
             }
         }
 
@@ -149,7 +162,13 @@ pipeline
                     }
                    
                 }
-				 sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'ansible-playbook sample.yml -i myinv -l PROD -u vagrant ', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'sample.yml, myinv')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+				 ansiblePlaybook(
+                    playbook: 'sample.yml',
+                    inventory: 'myinv',
+					limit: 'PROD',
+					disableHostKeyChecking: true,
+					credentialsId: 'ansiblekey',
+					colorized: true)
 				
             }
         }
