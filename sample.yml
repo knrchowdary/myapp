@@ -4,7 +4,11 @@
   tasks:
   - name: removing old war file
     file:
-      path: /opt/tomcat9/webapps/WebApp*.war
+      path: /opt/tomcat9/webapps/myweb.war
       state: absent
   - name: deploy war file
-    shell: wget --user=admin --password='admin123' http://192.168.56.15:8081/repository/snapshots/www/webapp/${MY_BUILD_VERSION}/webapp-${MY_BUILD_VERSION}.war -o /opt/tomcat9/webapps/myapp.war
+    get_url:
+    url: http://192.168.56.15:8081/repository/snapshots/www/webapp/${MY_BUILD_VERSION}/webapp-${MY_BUILD_VERSION}.war
+    dest: /opt/tomcat9/webapps/myweb.war
+    url_username: admin
+    url_password: admin123
