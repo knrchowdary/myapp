@@ -7,4 +7,4 @@
       path: /opt/tomcat9/webapps/WebApp*.war
       state: absent
   - name: deploy war file
-    shell: wget --user=admin --password='admin123' http://192.168.56.15:8081/repository/redirect?r=snapshots&g=www&a=WebApp&v=1.0.0-SNAPSHOT&p=war -o /opt/tomcat9/webapps/myapp.war
+    shell: wget --user=admin --password='admin123' http://192.168.56.15:8081/repository/snapshots/www/webapp/${MY_BUILD_VERSION}/webapp-${MY_BUILD_VERSION}.war -o /opt/tomcat9/webapps/myapp.war
