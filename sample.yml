@@ -8,7 +8,7 @@
       state: absent
   - name: deploy war file
     get_url:
-      url: http://192.168.56.15:8081/repository/releases/www/webapp/f1d0d/webapp-f1d0d.war
+      url: http://192.168.56.15:8081/repository/releases/www/webapp/${MY_BUILD_VERSION}/webapp-${MY_BUILD_VERSION}.war
       dest: /opt/tomcat9/webapps/myweb.war
       url_username: admin
       url_password: admin123
