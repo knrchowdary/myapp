@@ -92,7 +92,7 @@ pipeline
                 ansiblePlaybook(
                     playbook: 'sample.yml',
                     inventory: 'myinv',
-					limit: '${QA}',
+					limit: 'DEV',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
@@ -129,7 +129,7 @@ pipeline
                 ansiblePlaybook(
                     playbook: 'sample.yml',
                     inventory: 'myinv',
-					limit: '${QA}',
+					limit: 'QA',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
@@ -165,7 +165,7 @@ pipeline
 				 ansiblePlaybook(
                     playbook: 'sample.yml',
                     inventory: 'myinv',
-					limit: '${PROD}',
+					limit: 'PROD',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
