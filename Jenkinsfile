@@ -1,9 +1,15 @@
 pipeline
 {
+  agent any
 
-	agent any
-
- 
+  tools { 
+        maven 'mvn' 
+        jdk 'java8' 
+    }
+	
+  options {
+	ansiColor("xterm")
+    }
 
     environment
     {
@@ -51,11 +57,9 @@ pipeline
             
             steps
             {
-                script
-                {
-                    
-                    sh "mvn clean deploy"
-                    
+               withMaven() {
+                   sh "mvn clean deploy"
+           
                 }
             }
 
