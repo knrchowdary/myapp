@@ -4,11 +4,11 @@
   tasks:
   - name: removing old war file
     file:
-      path: /opt/tomcat9/webapps/myapp.war
+      path: /opt/tomcat9/webapps/WebApp*.war
       state: absent
   - name: deploy war file
     get_url:
-      url: http://192.168.56.15:8081/repository/snapshots/www/WebApp/1.0.0-SNAPSHOT/${project.artifactId}-${project.version}.war
+      url: http://192.168.56.15:8081/repository/snapshots/www/WebApp/1.0.0-SNAPSHOT/WebApp-1.0.0-20190630.090335-7.war
       dest: /opt/tomcat9/webapps
       url_username: admin
       url_password: admin123
