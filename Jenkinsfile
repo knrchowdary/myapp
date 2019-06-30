@@ -59,7 +59,7 @@ pipeline
             {
                 script
 		    {
-		      withMaven(maven: 'mvn')
+		    
 		  	sh "mvn clean deploy"
            
                 }
