@@ -57,8 +57,10 @@ pipeline
             
             steps
             {
-               withMaven() {
-                   sh "mvn clean deploy"
+                script
+		    {
+		      withMaven(maven: 'mvn')
+		  	sh "mvn clean deploy"
            
                 }
             }
