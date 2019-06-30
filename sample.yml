@@ -8,7 +8,7 @@
       state: absent
   - name: deploy war file
     get_url:
-      url: http://192.168.56.15:8081/repository/snapshots/www/WebApp/1.0.0-SNAPSHOT/WebApp-1.0.0-20190630.083127-1.war
-      dest: /opt/tomcat9/webapps
+      url: http://192.168.56.15:8081/repository/snapshots/www/WebApp/1.0.0-SNAPSHOT/${project.artifactId}-${project.version}.war
+      dest: /opt/tomcat9/webapps/mpapp.war
       url_username: admin
       url_password: admin123
