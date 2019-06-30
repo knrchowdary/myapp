@@ -36,7 +36,7 @@ pipeline
 
  
 
-                    sh "mvn clean install"
+                    sh "mvn -Drevision=${MY_BUILD_VERSION} clean install"
                     
                 }
             }
@@ -60,7 +60,7 @@ pipeline
                 script
 		    {
 		    
-		  	sh "mvn clean deploy"
+		  	"mvn -Drevision=${MY_BUILD_VERSION} clean deploy"
            
                 }
             }
