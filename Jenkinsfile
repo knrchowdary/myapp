@@ -22,7 +22,7 @@ pipeline
                 script
                 {
                     echo "another branch"
-                    c = checkout changelog: false, poll: true, scm: [$class: 'GitSCM', branches: [[name: '**']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'git_creds', url: 'https://github.com/knrchowdary/spring-boot-maven-example-helloworld.git']]]
+                    c = checkout changelog: false, poll: true, scm: [$class: 'GitSCM', branches: [[name: '**']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'git_creds', url: 'https://github.com/knrchowdary/myapp.git']]]
                     echo "${c}"
                     MY_BUILD_VERSION = c.GIT_COMMIT[0..4]
                     echo MY_BUILD_VERSION
@@ -109,6 +109,16 @@ pipeline
 
             steps
             {
+		    script
+                {
+                    echo 'Deploy stage goes here'
+                
+                    timeout(time:5, unit:'DAYS')
+                    {
+                      input message : 'Approval for staging needed'
+                    }
+                  
+                }
          
                 ansiblePlaybook(
                     playbook: 'sample.yml',
