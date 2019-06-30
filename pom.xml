@@ -3,7 +3,7 @@
 	<groupId>www</groupId>
 	<artifactId>WebApp</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>${revision}</version>
 	<name>${project.artifactId}-${project.version}</name>
 
 	<properties>
@@ -102,12 +102,12 @@
         -->
 	<distributionManagement>
 		<repository>
-			<id>deployment</id>
+			<id>deployment-rel</id>
 			<name>releases</name>
 			<url>http://192.168.56.15:8081/repository/releases/</url>
 		</repository>
 		<snapshotRepository>
-			<id>deployment</id>
+			<id>deployment-snap</id>
 			<name>Snapshots</name>
 			<url>http://192.168.56.15:8081/repository/snapshots/</url>
 		</snapshotRepository>
