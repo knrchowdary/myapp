@@ -28,7 +28,7 @@ pipeline
                 script
                 {
                     echo "another branch"
-                    c = checkout changelog: false, poll: true, scm: [$class: 'GitSCM', branches: [[name: '**']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'git_creds', url: 'https://github.com/knrchowdary/myapp.git']]]
+                    c = checkout changelog: false, poll: true, scm: [$class: 'GitSCM', branches: [[name: '**/*']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'git_creds', url: 'https://github.com/knrchowdary/myapp.git']]]
                     echo "${c}"
                     GIT_BRANCH_NAME = c.GIT_BRANCH
 
