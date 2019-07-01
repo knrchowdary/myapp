@@ -36,7 +36,7 @@ pipeline
 
  
 
-                    sh "mvn -Drevision=${MY_BUILD_VERSION} clean install"
+                    sh "mvn -Drevision=$PROJECT_NAME-$BUILD_NUMBER clean install"
                     
                 }
             }
@@ -60,7 +60,7 @@ pipeline
                 script
 		    {
 		    
-		  sh "mvn -Drevision=${MY_BUILD_VERSION} clean deploy"
+		  sh "mvn -Drevision=$PROJECT_NAME-$BUILD_NUMBER clean deploy"
            
                 }
             }
@@ -93,7 +93,7 @@ pipeline
                     playbook: 'sample.yml',
                     inventory: 'myinv',
 					limit: 'DEV',
-			                extras: 'version=${revision}',
+			                extras: 'version=$PROJECT_NAME-$BUILD_NUMBER',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
@@ -131,7 +131,7 @@ pipeline
                     playbook: 'sample.yml',
                     inventory: 'myinv',
 					limit: 'QA',
-			   		extras: 'version=${revision}',
+			   		extras: 'version=$PROJECT_NAME-$BUILD_NUMBER',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
@@ -168,7 +168,7 @@ pipeline
                     playbook: 'sample.yml',
                     inventory: 'myinv',
 					limit: 'PROD',
-				   	extras: 'version=${revision}',
+				   	extras: 'version=$PROJECT_NAME-$BUILD_NUMBER',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
