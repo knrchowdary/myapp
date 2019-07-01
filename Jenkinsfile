@@ -93,6 +93,7 @@ pipeline
                     playbook: 'sample.yml',
                     inventory: 'myinv',
 					limit: 'DEV',
+			                extras: 'version=${MY_BUILD_VERSION}',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
@@ -130,6 +131,7 @@ pipeline
                     playbook: 'sample.yml',
                     inventory: 'myinv',
 					limit: 'QA',
+			   		extras: 'version=${MY_BUILD_VERSION}',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
@@ -166,6 +168,7 @@ pipeline
                     playbook: 'sample.yml',
                     inventory: 'myinv',
 					limit: 'PROD',
+				   	extras: 'version=${MY_BUILD_VERSION}',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
