@@ -14,7 +14,7 @@ pipeline
     environment
     {
         GIT_BRANCH_NAME = "1"
-        MY_BUILD_VERSION = "1"
+        MY_BUILD_VERSION = "$JOB_NAME-$BUILD_NUMBER"
     }
 
  
@@ -30,13 +30,11 @@ pipeline
                     echo "another branch"
                     c = checkout changelog: false, poll: true, scm: [$class: 'GitSCM', branches: [[name: '**']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'git_creds', url: 'https://github.com/knrchowdary/myapp.git']]]
                     echo "${c}"
-                    MY_BUILD_VERSION = c.GIT_COMMIT[0..4]
-                    echo MY_BUILD_VERSION
                     GIT_BRANCH_NAME = c.GIT_BRANCH
 
  
 
-                    sh "mvn -Drevision=$PROJECT_NAME-$BUILD_NUMBER clean install"
+			sh "mvn -Drevision=${MY_BUILD_VERSION} clean install"
                     
                 }
             }
@@ -60,7 +58,7 @@ pipeline
                 script
 		    {
 		    
-		  sh "mvn -Drevision=$PROJECT_NAME-$BUILD_NUMBER clean deploy"
+		  sh "mvn -Drevision=${MY_BUILD_VERSION} clean deploy"
            
                 }
             }
@@ -93,7 +91,7 @@ pipeline
                     playbook: 'sample.yml',
                     inventory: 'myinv',
 					limit: 'DEV',
-			                extras: 'version=$PROJECT_NAME-$BUILD_NUMBER',
+			                extras: 'version=${MY_BUILD_VERSION}',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
@@ -131,7 +129,7 @@ pipeline
                     playbook: 'sample.yml',
                     inventory: 'myinv',
 					limit: 'QA',
-			   		extras: 'version=$PROJECT_NAME-$BUILD_NUMBER',
+			   		extras: 'version=${MY_BUILD_VERSION}',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
@@ -168,7 +166,7 @@ pipeline
                     playbook: 'sample.yml',
                     inventory: 'myinv',
 					limit: 'PROD',
-				   	extras: 'version=$PROJECT_NAME-$BUILD_NUMBER',
+				   	extras: 'version=${MY_BUILD_VERSION}',
 					disableHostKeyChecking: true,
 					credentialsId: 'ansiblekey',
 					colorized: true)
