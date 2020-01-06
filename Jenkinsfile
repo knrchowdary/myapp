@@ -1,186 +1,130 @@
-pipeline
-{
-  agent any
-
-  tools { 
-        maven 'mvn' 
-        jdk 'jdk8' 
+def GIT_BRANCH
+def PROJ_VERSION
+def VERSION
+def BRANCH
+pipeline {
+    agent any
+	tools {
+        maven 'MAVAN-3.3.9'
+        jdk 'JDK891'
     }
-	
-  options {
+	options {
 	ansiColor("xterm")
     }
-
-    environment
-    {
-        GIT_BRANCH_NAME = "1"
-        MY_BUILD_VERSION = "$JOB_NAME-$BUILD_NUMBER"
-    }
-
- 
-
-    stages
-    {
-        stage('Build')
-        {
-            steps
-            {
-                script
-                {
-                   
-                    c = checkout changelog: false, poll: true, scm: [$class: 'GitSCM', branches: [[name: '**/*']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'git_creds', url: 'https://github.com/knrchowdary/myapp.git']]]
-                    echo "${c}"
-                    GIT_BRANCH_NAME = c.GIT_BRANCH
-
- 
-
-			sh "mvn -Drevision=${MY_BUILD_VERSION} clean install"
-                    
+	environment {
+		MAVEN_OPTS = '-Xmx2048m'
+	}
+    stages {
+        stage ('Read version') {
+            steps {
+                script {		
+                  GIT_BRANCH = "${BRANCH_NAME}"				
+				  PROJ_VERSION = readMavenPom(file: 'api-hotels/pom.xml').getVersion()	
+                  BRANCH =  sh(returnStdout: true, script: "echo $GIT_BRANCH | sed 's@/@-@g'").trim()	
+                  echo "$BRANCH"			  
                 }
+            } 
+		} 
+        stage ('version set') { 
+		    steps {
+			    script {
+				  if ( GIT_BRANCH ==~ /.*develop/ ){
+				     sh "mvn --batch-mode -f api-hotels versions:set -DnewVersion=$PROJ_VERSION-SNAPSHOT"
+					}
+				  if ( GIT_BRANCH ==~ /.*feature\/.*/ ) {
+				     sh "mvn --batch-mode -f api-hotels versions:set -DnewVersion=$PROJ_VERSION-$BRANCH-SNAPSHOT"
+					}
+				  if ( GIT_BRANCH ==~ /.*release\/.*|.*hotfix\/.*/ ) {
+				     sh "mvn --batch-mode -f api-hotels versions:set -DnewVersion=$PROJ_VERSION-RC${BUILD_ID}"
+					}
+				  if ( GIT_BRANCH ==~ /.*master/ ) {
+				     sh "mvn --batch-mode -f api-hotels versions:set -DnewVersion=$PROJ_VERSION${BUILD_ID}"
+					}
+				}
             }
-
- 
-
         }
-        
-        stage("Publish")
-        {
-        
+		stage ('Build') {
+		    steps{
+			  script {
+				sh 'mvn --batch-mode -f api-hotels clean deploy -s .m2.settings.xml'
+				VERSION = readMavenPom(file: 'api-hotels/pom.xml').getVersion()
+			    echo "$VERSION"
+			  }
+			}
+		}
+		stage (' DEV deploy') {
             when
-             {
-                    expression {
-                        GIT_BRANCH_NAME ==~ /.*master|.*feature.*|.*develop|.*hotfix.*/
-                    }
-            }
-            
-            steps
-            {
-                script
-		    {
-		    
-		  sh "mvn -Drevision=${MY_BUILD_VERSION} clean deploy"
-           
-                }
-            }
-
- 
-
-        }
-        stage('DEV')
-        {
-            when
-                 {
-                        expression {
-                             GIT_BRANCH_NAME ==~ /.*master|.*feature.*|.*develop|.*hotfix.*/
-                        }
-                }
-            steps
-            {
-                script
                 {
-                    echo 'Deploy stage goes here'
-                
-                    timeout(time:5, unit:'DAYS')
-                    {
-                      input message : 'Approval for staging needed'
+                  expression {
+                        GIT_BRANCH ==~ /.*develop|.*feature\/.*/
                     }
-                  
                 }
-		
-		    ansiblePlaybook(
-                    playbook: 'sample.yml',
-                    inventory: 'myinv',
-					limit: 'DEV',
-			            extraVars   : [
-                                    version: "${MY_BUILD_VERSION}"
-                                         ],
-					disableHostKeyChecking: true,
-					credentialsId: 'ansiblekey',
-					colorized: true)
-            
+		   steps {
+		      script {
+				  echo "Deploy application on developmment environment"
+				  ansibleTower( towerServer: 'awx', towerCredentialsId: 'ansible-awx', templateType: 'job', jobTemplate: 'DEV dpax', importTowerLogs: true, inventory: '', jobTags: '', skipJobTags: '', limit: '', removeColor: false, verbose: true, credential: '', extraVars: '''--- 
+version: '''+ VERSION +''' ''', async: false )
+			    }  
             }
-        }
-
- 
-
-        stage('QA')
-        {
+		}
+        stage (' QA deploy') {	
             when
-                 {
-                        expression {
-                            GIT_BRANCH_NAME ==~ /.*master|.*feature.*|.*develop|.*hotfix.*/
-                        }
-                }
-
- 
-
-            steps
-            {
-		    script
                 {
-                    echo 'Deploy stage goes here'
-                
-                    timeout(time:5, unit:'DAYS')
-                    {
-                      input message : 'Approval for staging needed'
+                  expression {
+                        GIT_BRANCH ==~ /.*release\/.*|.*hotfix\/.*/
                     }
-                  
                 }
-         
-                ansiblePlaybook(
-                    playbook: 'sample.yml',
-                    inventory: 'myinv',
-					limit: 'QA',
-			   		 extraVars   : [
-                                    version: "${MY_BUILD_VERSION}"
-                                         ],
-					disableHostKeyChecking: true,
-					credentialsId: 'ansiblekey',
-					colorized: true)
-     
-            }
-        }
-
- 
-
-        stage('PRD')
-        {
+		   steps {
+		      script {
+				  echo 'Deploy application on qa environment'
+                  timeout(time:5, unit:'DAYS') {
+                      input message : 'Approval for staging needed' }
+				  ansibleTower( towerServer: 'awx', towerCredentialsId: 'ansible-awx', templateType: 'job', jobTemplate: 'QA dpax', importTowerLogs: true, inventory: '', jobTags: '', skipJobTags: '', limit: '', removeColor: false, verbose: true, credential: '', extraVars: '''--- 
+version: '''+ VERSION +''' ''', async: false )
+				}
+			}
+        }			
+        stage (' UAT deploy') {	
             when
-                 {
-                        expression {
-                             GIT_BRANCH_NAME ==~ /.*master|.*feature.*|.*develop|.*hotfix.*/
-                        }
-                }
-
- 
-
-            steps
-            {
-                script
                 {
-                    echo 'PRD stage goes here'
-                
-                    timeout(time:5, unit:'DAYS')
-                    {
-                      input message : 'Approval for staging needed'
+                  expression {
+                        GIT_BRANCH ==~ /.*release\/.*|.*hotfix\/.*/
                     }
-                   
                 }
-				 ansiblePlaybook(
-                    playbook: 'sample.yml',
-                    inventory: 'myinv',
-					limit: 'PROD',
-				   	 extraVars   : [
-                                    version: "${MY_BUILD_VERSION}"
-                                         ],
-					disableHostKeyChecking: true,
-					credentialsId: 'ansiblekey',
-					colorized: true)
-				
+		    steps {
+		      script {
+				  echo 'Deploy application on uat environment'
+                  timeout(time:5, unit:'DAYS') {
+                      input message : 'Approval for staging needed' }
+				  ansibleTower( towerServer: 'awx', towerCredentialsId: 'ansible-awx', templateType: 'job', jobTemplate: 'UAT dpax', importTowerLogs: true, inventory: '', jobTags: '', skipJobTags: '', limit: '', removeColor: false, verbose: true, credential: '', extraVars: '''--- 
+version: '''+ VERSION +''' ''', async: false )
+				}
+			}
+		}	
+        stage (' PROD deploy') {	
+            when
+                {
+                  expression {
+                        GIT_BRANCH ==~ /.*release\/.*|.*hotfix\/.*/
+                    }
+                }
+		    steps {
+		      script {
+				  echo 'Deploy application on prod environment'
+                  timeout(time:5, unit:'DAYS') {
+                      input message : 'Approval for staging needed' }
+				  ansibleTower( towerServer: 'awx', towerCredentialsId: 'ansible-awx', templateType: 'job', jobTemplate: 'PROD dpax', importTowerLogs: true, inventory: '', jobTags: '', skipJobTags: '', limit: '', removeColor: false, verbose: true, credential: '', extraVars: '''--- 
+version: '''+ VERSION +''' ''', async: false )
+				}      				
+            }		
+		}
+	}
+	post {
+        failure {
+            slackSend baseUrl: 'https://hooks.slack.com/services/', channel: '#eng_jenkins_builds', color: 'danger', message: "Build failed in Jenkins: ${JOB_NAME} - ${BUILD_NUMBER}, url: (<${BUILD_URL}|Open>)", teamDomain: 'accommodationsplus', tokenCredentialId: 'slack-dpax' 
             }
-        }
-    }
-
- 
-
-}
+        unstable {
+            slackSend baseUrl: 'https://hooks.slack.com/services/', channel: '#eng_jenkins_builds', color: 'warning', message: "Unstable build in Jenkins: ${JOB_NAME} - ${BUILD_NUMBER}, url: (<${BUILD_URL}|Open>)", teamDomain: 'accommodationsplus', tokenCredentialId: 'slack-dpax' 
+            }
+    }		
+}    
